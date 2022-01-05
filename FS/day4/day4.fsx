@@ -8,8 +8,7 @@ let inputFile =
 
 let bingoNumbers = inputFile.[0].Split(",") |> Array.toList 
 
-let mapBoardInput =
-    fun (boardRaw: list<string>) ->
+let mapBoardInput (boardRaw: list<string>) =
         boardRaw
         |> List.map (fun line -> line.Trim().Replace("  ", " ").Split(" "))
         |> List.map (fun row -> row |> Array.toList)
@@ -17,15 +16,13 @@ let mapBoardInput =
 type Field = { value: string; isChecked: bool }
 type Board = { rows: List<List<Field>>; columns: List<List<Field>> }
 
-let getEmptyBoard = fun _ -> { rows = List.empty; columns = List.empty }
+let getEmptyBoard = { rows = List.empty; columns = List.empty }
 
-let mapArrToFields =
-    fun (boardArr: list<list<string>>) ->
+let mapArrToFields (boardArr: list<list<string>>) =
         boardArr
         |> List.map (fun row -> row |> List.map (fun v -> { value = v; isChecked = false }))
 
-let rec createBoard =
-    fun (boardArr: list<list<Field>>, i, j, board: Board) ->
+let rec createBoard (boardArr: list<list<Field>>, i, j, board: Board) =
         if (i = boardArr.Length) then
             board
         else if (j = boardArr.[i].Length) then
@@ -41,37 +38,36 @@ let rec createBoard =
             }
             createBoard (boardArr, i, (j + 1), newBoard)
 
-let mapToBoards =
-    fun (boardArr: list<list<list<Field>>>) ->
+let mapToBoards (boardArr: list<list<list<Field>>>) =
         boardArr
         |> List.map (fun board ->
-            createBoard ( board, 0, 0, getEmptyBoard()))
+            createBoard ( board, 0, 0, getEmptyBoard))
     
-let checkNumberInRows = fun (rows: list<list<Field>>, number: string) ->
+let checkNumberInRows (rows: list<list<Field>>, number: string) =
     rows |> List.map (fun r -> r |> List.map(fun (item: Field)-> if item.value = number then { value = item.value; isChecked = true } else item ))
 
-let checkNumberInBoard = fun (board: Board, number: string) -> 
+let checkNumberInBoard (board: Board, number: string) =
     let rows = checkNumberInRows (board.rows,number)
     let columns = checkNumberInRows (board.columns, number)
     {  rows = rows; columns = columns }
 
-let checkNumberInAllBoards = fun (boards: list<Board>, number: string) ->
+let checkNumberInAllBoards (boards: list<Board>, number: string) =
     boards |> List.map (fun b -> checkNumberInBoard(b, number))
 
-let checkWinningInRows = fun (rows: list<list<Field>>) ->
+let checkWinningInRows (rows: list<list<Field>>) =
     rows |> List.tryFindIndex (fun (row: list<Field>) -> row |> List.forall (fun el -> el.isChecked) )
 
-let checkWinningInBoard = fun (board: Board) ->
+let checkWinningInBoard (board: Board) =
     if (checkWinningInRows board.rows) <> None then true else 
         if (checkWinningInRows board.columns) <> None then true else false
 
-let getUncheckedValuesSumInRow = fun (rows: list<Field>) ->
+let getUncheckedValuesSumInRow (rows: list<Field>) =
     rows |> List.fold (fun acc curr -> if curr.isChecked = false then acc + (curr.value |> int) else acc) 0
 
-let getUncheckedValuesSumInBoard = fun (board:Board) ->
+let getUncheckedValuesSumInBoard (board:Board) =
     board.rows |> List.fold (fun acc curr ->  acc + (getUncheckedValuesSumInRow curr)) 0
 
-let rec applyNumbers = fun (boards: list<Board>, numbers: list<string>) ->
+let rec applyNumbers (boards: list<Board>, numbers: list<string>) =
         match numbers with
             | head::tail -> 
                 let newBoards = checkNumberInAllBoards(boards, head)
@@ -89,7 +85,7 @@ let boardsArrays =
     |> mapToBoards
 
 // 1.
-let getResult = fun(boards, numbers) ->
+let getResult (boards, numbers) =
     let (winningBoard, winningNumber) = applyNumbers (boards, numbers)
     let uncheckedSum = 
         match winningBoard with
@@ -101,10 +97,10 @@ let result = getResult(boardsArrays, bingoNumbers)
 printfn "%A" result
 
 // 2.
-let filterNotWinningBoards = fun boards -> 
+let filterNotWinningBoards boards = 
     boards |> List.filter (fun b -> checkWinningInBoard(b) = false)
 
-let rec applyAllNumbers = fun (boards: list<Board>, numbers: list<string>, lastWinningBoard: Board, lastWinningNumber: string) ->
+let rec applyAllNumbers (boards: list<Board>, numbers: list<string>, lastWinningBoard: Board, lastWinningNumber: string) =
         match numbers with
             | head::tail -> 
                 let newBoards = checkNumberInAllBoards(boards, head)
@@ -116,8 +112,8 @@ let rec applyAllNumbers = fun (boards: list<Board>, numbers: list<string>, lastW
                 | None -> applyAllNumbers(newBoards, tail, lastWinningBoard, lastWinningNumber)
             | _ -> (lastWinningBoard,lastWinningNumber)
 
-let getLastResult = fun(boards, numbers) ->
-    let (winningBoard, winningNumber) = applyAllNumbers (boards, numbers, getEmptyBoard(), "")
+let getLastResult (boards, numbers) =
+    let (winningBoard, winningNumber) = applyAllNumbers (boards, numbers, getEmptyBoard, "")
     let uncheckedSum = getUncheckedValuesSumInBoard winningBoard
     uncheckedSum * (winningNumber |> int)
 

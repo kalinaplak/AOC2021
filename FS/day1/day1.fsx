@@ -2,15 +2,13 @@
 
 open AOC.AOCFileReader
 
-let inputNumArr =
-    readFileAsNumbers "./FS/day1/input.txt"
+let inputNumArr = readFileAsNumbers "./FS/day1/input.txt"
 
-let getIncreasedValuesLength =
-    fun (s: seq<int>) ->
-        s
-        |> Seq.pairwise
-        |> Seq.filter (fun (x, y) -> x < y)
-        |> Seq.length
+let getIncreasedValuesLength (s: seq<int>) =
+    s
+    |> Seq.pairwise
+    |> Seq.filter (fun (x, y) -> x < y)
+    |> Seq.length
 
 let pairsL = getIncreasedValuesLength inputNumArr
 

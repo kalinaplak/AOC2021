@@ -2,21 +2,21 @@
 
 open AOC.AOCFileReader
 
-let fileLineToPointPairs = fun (l:string) ->
+let fileLineToPointPairs (l:string) =
      let pairArr = l.Split(" -> ") |> Array.map ( fun p -> 
         let pointArr = p.Split(",") |> Array.map (fun str -> str |> int)
         (pointArr.[0], pointArr.[1])
      )
      (pairArr.[0], pairArr.[1])
 
-let filterHorizontalOrVerticalLines = fun pairs ->
+let filterHorizontalOrVerticalLines pairs =
     pairs |> Array.filter (fun p ->
         let (x,y) = fst p
         let (x2,y2) = snd p
         x = x2 || y = y2
     )
     
-let rec pointPairToPoints = fun ((x1,y1), (x2,y2)) cx cy (points:List<(int * int)>) ->
+let rec pointPairToPoints ((x1,y1), (x2,y2)) cx cy (points:List<(int * int)>) =
     if cx = x2 && cy = y2 then points 
     else 
         let nx = if cx < x2 then (cx + 1) else if cx <> x2 then (cx - 1) else cx
@@ -27,15 +27,15 @@ let rec pointPairToPoints = fun ((x1,y1), (x2,y2)) cx cy (points:List<(int * int
             else List.append points [(nx,ny)]
         pointPairToPoints ((x1,y1), (x2,y2)) nx ny newPoints
 
-let getPointsList = fun points ->
+let getPointsList points =
     List.concat (points |> Array.map ( fun p -> 
         pointPairToPoints p (fst (fst p)) (snd (fst p)) List.empty
     ))
 
-let groupPoints = fun points ->
+let groupPoints points =
     points |> List.groupBy id |> List.map (fun (c, cs) -> c, List.length cs)
 
-let filterGroupsByLength = fun groups number ->
+let filterGroupsByLength groups number =
     (groups |> List.filter (fun p -> snd p > number)).Length
 
 //1.
