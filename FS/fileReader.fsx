@@ -4,9 +4,9 @@ module AOCFileReader =
     let readFileAsStringLines path =
         (System.IO.File.ReadAllText path).Split "\n"
 
-    let readFileLinesAsNumbers path =
+    let readFileLinesAsBigIntNumbers path =
         (readFileAsStringLines path)
-        |> Array.map (fun l -> l.Split(",") |> Array.map (fun s -> s |> int)) 
+        |> Array.map (fun l -> l.Split(",") |> Array.map (fun s -> s |> System.Numerics.BigInteger.Parse)) 
         |> Array.collect id
 
     let readFileAsNumbers path =

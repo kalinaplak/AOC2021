@@ -1,20 +1,21 @@
 #load "../fileReader.fsx"
 
 open AOC.AOCFileReader
+open System.Numerics
 
 let numbers =
-    readFileLinesAsNumbers "./FS/day6/input.txt" |> Array.toList
+    readFileLinesAsBigIntNumbers "./FS/day6/input.txt" |> Array.toList
 
 let gropuPopulationToMap population =
-    Map(population |> List.groupBy id |> List.map (fun (c, cs) -> c, List.length cs))
+    Map(population |> List.groupBy id |> List.map (fun (c, cs) -> c, bigint(List.length cs)))
 
-let applyGrowthToTuple (tuple: (int * int)) = 
+let applyGrowthToTuple (tuple: (BigInteger * BigInteger)) = 
     let (value,count) = tuple
-    match value with
-    | 0 -> [(6,count); (8,count)]
-    | num -> [((num - 1), count)]
+    if value = (bigint 0)
+    then  [((bigint 6),count); ((bigint 8),count)]
+    else [((value - (bigint 1)), count)]
 
-let rec appendListToPopulationMap list (map:Map<int,int>) =
+let rec appendListToPopulationMap list (map:Map<BigInteger, BigInteger>) =
     match list with
     | head:: tail ->
         let newMap = 
@@ -40,6 +41,6 @@ let rec simulatePopulationGrowth population newPopulation day maxDay =
         else newPopulation
 
 let group = gropuPopulationToMap numbers
-let result = simulatePopulationGrowth group Map.empty 1 80
-let length = (Map.toList result) |> (List.fold (fun acc curr -> acc + (snd curr)) 0)
+let result = simulatePopulationGrowth group Map.empty 1 256
+let length = (Map.toList result) |> (List.fold (fun acc curr -> acc + (snd curr)) (bigint 0))
 printf "%A" length
