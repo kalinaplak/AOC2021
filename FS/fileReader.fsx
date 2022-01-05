@@ -4,6 +4,11 @@ module AOCFileReader =
     let readFileAsStringLines path =
         (System.IO.File.ReadAllText path).Split "\n"
 
+    let readFileLinesAsNumbers path =
+        (readFileAsStringLines path)
+        |> Array.map (fun l -> l.Split(",") |> Array.map (fun s -> s |> int)) 
+        |> Array.collect id
+
     let readFileAsNumbers path =
         readFileAsStringLines path
         |> Seq.filter (fun x -> x <> "")
