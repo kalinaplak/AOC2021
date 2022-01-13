@@ -14,6 +14,11 @@ module AOCFileReader =
         |> Seq.filter (fun x -> x <> "")
         |> Seq.map (fun x -> x |> int)
 
+    let readFileAsNumbersAndSplit path =
+        readFileAsStringLines path
+        |> Array.map (fun l -> l.Split(",") |> Array.map (fun s -> s |> int)) 
+        |> Array.collect id
+
     let splitLinesToStringIntTuples (list: string [], separator: string) =
         list
         |> Seq.map (fun x -> x.Split separator)
